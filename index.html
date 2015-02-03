@@ -1,2 +1,99 @@
 <html>
+    <head>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    </head>
+    <body>
+    	<div style="position:absolute">
+			<table id="ball" style="float:left; height:100%">
+				<tr><td>Ball Numbers</td></tr>
+			</table>
+			<table id="lucky" style="float:right">
+				<tr><td>Lucky Stars</td></tr>
+			</table>
+        </div>
+        <div class="result">    
+        </div>
+        <script type="text/javascript">
+        	function amountInArr(str, arr){
+        		var count = 0;
+        		for (var i = arr.length - 1; i >= 0; i--) {
+        			if (str == arr[i])
+        				count++;
+        		};
+        		return count;
+        	}
+
+
+            $(document).ready(function(){
+                $.get( "https://www.national-lottery.co.uk/results/euromillions/draw-history?icid=mdr%3Aem%3Atx", function( data ) {
+					var ballNumbers = [], luckyStars = [];                    
+					var s = $( ".result" ).html( data ).find("span.table_cell_block");
+					$('.result').hide();
+					for (var i=0; i<s.length;i++){
+						var str = s[i].innerHTML.replace(/\s+/g, '');
+						var arr = str.split('-');
+						if (arr.length == 5){
+							$.merge(ballNumbers, arr);
+						}else if (arr.length == 2){
+							$.merge(luckyStars, arr);
+
+						}
+					}
+					var ballResult = [];
+					ballResult[0] = [];
+					ballResult[1] = [];
+					for (var i=0; i<ballNumbers.length;i++){
+
+						if (amountInArr(ballNumbers[i], ballResult[0]) === 0){
+							ballResult[0].push(ballNumbers[i]);
+							ballResult[1].push(amountInArr(ballNumbers[i], ballNumbers)); 
+						}
+					}
+					for (var i=0; i<ballResult[1].length;i++){
+						for (var j=i+1; j<ballResult[1].length;j++){
+							if (ballResult[1][i]<ballResult[1][j]){
+								var tmp = ballResult[1][j];
+								ballResult[1][j] = ballResult[1][i];
+								ballResult[1][i] = tmp;
+								tmp = ballResult[0][j];
+								ballResult[0][j] = ballResult[0][i];
+								ballResult[0][i] = tmp;
+							}
+						}	
+					}	
+					for (var i=0; i<ballResult[1].length;i++){	
+						$("#ball").append('<tr><td>'+ballResult[1][i]+'</td><td>'+ballResult[0][i]+'</td></tr>') 			
+					}
+
+
+
+					var luckyResult = [];
+					luckyResult[0] = [];
+					luckyResult[1] = [];
+					for (var i=0; i<luckyStars.length;i++){
+
+						if (amountInArr(luckyStars[i], luckyResult[0]) === 0){
+							luckyResult[0].push(luckyStars[i]);
+							luckyResult[1].push(amountInArr(luckyStars[i], luckyStars)); 
+						}
+					}
+					for (var i=0; i<luckyResult[1].length;i++){
+						for (var j=i+1; j<luckyResult[1].length;j++){
+							if (luckyResult[1][i]<luckyResult[1][j]){
+								var tmp = luckyResult[1][j];
+								luckyResult[1][j] = luckyResult[1][i];
+								luckyResult[1][i] = tmp;
+								tmp = luckyResult[0][j];
+								luckyResult[0][j] = luckyResult[0][i];
+								luckyResult[0][i] = tmp;
+							}
+						}	
+					}	
+					for (var i=0; i<luckyResult[1].length;i++){	
+						$("#lucky").append('<tr><td>'+luckyResult[1][i]+'</td><td>'+luckyResult[0][i]+'</td></tr>') 			
+					}
+                });
+            });
+        </script>
+    </body>
 </html>
